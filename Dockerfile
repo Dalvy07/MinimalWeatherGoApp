@@ -16,11 +16,14 @@ RUN mkdir -p /root/.ssh && \
     chmod 700 /root/.ssh && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts
 
-# Using --depth=1 and git pull becouse without it always use cache even if code was changed
+# Using echo "Current time: $(date) because without it always use cache even if code was changed
 # And I don't want to use --no-cache.
-RUN --mount=type=ssh,id=github \
-    echo "Current time: $(date)" && \
-    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
+# RUN --mount=type=ssh,id=github \
+#     echo "Current time: $(date)" && \
+#     git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
+
+RUN --mount=type=ssh \
+    --mount=type=git,url=git@github.com:Dalvy07/MinimalWeatherGoApp.git,branch=main,target=.
 
 # # Copy files from local folder
 # COPY static/ ./static/
