@@ -10,13 +10,14 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
-// Встраиваем статические файлы прямо в бинарник
+// Embed static files directly into the binary
 //go:embed static/*
 var staticFiles embed.FS
 
-// Структуры для хранения данных о погоде
+// Structures for storing weather data
 type CurrentWeather struct {
 	Condition  struct{ Text string `json:"text"` } `json:"condition"`
 	TempC      float64 `json:"temp_c"`
@@ -49,7 +50,7 @@ type WeatherData struct {
 	LastUpdated string  `json:"last_updated"`
 }
 
-// Словарь с локациями
+// Dictionary with locations
 var locations = map[string][]string{
 	"Poland":        {"Warsaw", "Krakow", "Gdansk", "Wroclaw", "Poznan", "Lublin"},
 	"Germany":       {"Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"},
@@ -58,35 +59,47 @@ var locations = map[string][]string{
 	"Italy":         {"Rome", "Milan", "Naples", "Florence", "Venice"},
 }
 
-// API ключ получаем из переменной окружения
+// API key is obtained from environment variable
 var apiKey string
+// Author information from environment or default value if not set
+var authorName := os.Getenv("APP_AUTHOR")
 
 func init() {
-    // Проверка, что apiKey был установлен при компиляции
+    // Check that apiKey was set during compilation
     if apiKey == "" {
-        log.Fatal("API ключ не установлен. Неправильная сборка приложения.")
+        log.Fatal("API key not set. Incorrect application build.")
     }
+
+	// Check that authorName was set during compilation
+	if authorName == "" {
+		authorName = "Unknown Author"
+	}
 }
 
 func main() {
-	// Получаем порт из переменной окружения или используем 3000 по умолчанию
+	// Get port from environment variable or use 3000 as default
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
 	}
 
-	// Настраиваем маршруты
+	// Get current date and time
+	startTime := time.Now().Format("2006-01-02 15:04:05")
+
+	// Configure routes
 	http.HandleFunc("/", serveHome)
 	http.HandleFunc("/api/countries", getCountries)
 	http.HandleFunc("/api/cities/", getCities)
 	http.HandleFunc("/api/weather", getWeather)
 
-	// Запускаем сервер
-	fmt.Printf("Сервер насłuchuje на порте TCP: %s\n", port)
+	// Start the server with enhanced logging
+	fmt.Printf("Application started at: %s\n", startTime)
+	fmt.Printf("Author: %s\n", authorName)
+	fmt.Printf("Server listening on TCP port: %s\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
-// Обработчик для корневого маршрута - отдает HTML страницу
+// Handler for root route - serves HTML page
 func serveHome(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -95,7 +108,7 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	
 	content, err := staticFiles.ReadFile("static/index.html")
 	if err != nil {
-		http.Error(w, "Не удалось прочитать файл index.html", http.StatusInternalServerError)
+		http.Error(w, "Failed to read index.html file", http.StatusInternalServerError)
 		return
 	}
 	
@@ -103,16 +116,16 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	w.Write(content)
 }
 
-// Обработчик для статических CSS и JS файлов
+// Handler for static CSS and JS files
 func serveStatic(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path[1:] // Убираем начальный слеш
+	path := r.URL.Path[1:] // Remove leading slash
 	content, err := staticFiles.ReadFile(path)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 	
-	// Определяем MIME-тип на основе расширения файла
+	// Determine MIME type based on file extension
 	switch {
 	case strings.HasSuffix(path, ".css"):
 		w.Header().Set("Content-Type", "text/css")
@@ -123,7 +136,7 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 	w.Write(content)
 }
 
-// Обработчик для API запроса к списку стран
+// Handler for API request to list of countries
 func getCountries(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 	
@@ -136,7 +149,7 @@ func getCountries(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(countries)
 }
 
-// Обработчик для API запроса к списку городов для конкретной страны
+// Handler for API request to list of cities for a specific country
 func getCities(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 	
@@ -146,14 +159,14 @@ func getCities(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if !exists {
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Kraj nie został znaleziony"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Country not found"})
 		return
 	}
 	
 	json.NewEncoder(w).Encode(cities)
 }
 
-// Обработчик для API запроса погоды
+// Handler for API request for weather
 func getWeather(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 	
@@ -162,15 +175,15 @@ func getWeather(w http.ResponseWriter, r *http.Request) {
 	
 	if city == "" || country == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Wymagane są parametry city i country"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "City and country parameters are required"})
 		return
 	}
 	
 	weatherData, err := getWeatherFromAPI(city)
 	if err != nil {
-		log.Printf("Błąd podczas pobierania danych pogodowych: %v", err)
+		log.Printf("Error while fetching weather data: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Błąd podczas pobierania danych pogodowych"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error while fetching weather data"})
 		return
 	}
 	
@@ -178,7 +191,7 @@ func getWeather(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(weatherData)
 }
 
-// Функция получения данных о погоде из API
+// Function for getting weather data from API
 func getWeatherFromAPI(city string) (WeatherData, error) {
 	var weatherData WeatherData
 	
@@ -220,7 +233,7 @@ func getWeatherFromAPI(city string) (WeatherData, error) {
 	return weatherData, nil
 }
 
-// Функция для включения CORS
+// Function to enable CORS
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")

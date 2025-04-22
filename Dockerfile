@@ -1,46 +1,67 @@
-# Первый этап - сборка приложения
+# syntax=docker/dockerfile:1.2
+# First stage - application build
 FROM golang:alpine AS builder
 
 WORKDIR /app
 
-# Создаем директорию для статических файлов
-RUN mkdir -p /app/static
+# Сopy source files from GitHub repo
+RUN apk add --no-cache git openssh-client
 
-# Копируем шаблон HTML в директорию static
-COPY static/index.html /app/static/
+RUN mkdir -p /root/.ssh && \
+    chmod 700 /root/.ssh && \
+    ssh-keyscan github.com >> /root/.ssh/known_hosts
 
-# Копируем исходный код Go
-COPY main.go go.mod go.sum* /app/
+RUN --mount=type=ssh,id=github \
+    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
 
-# Включаем CGO (если требуется, в большинстве случаев можно отключить)
+# # Copy files from local folder
+# COPY static/ ./static/
+# COPY main.go go.mod ./
+
+# THIS VERY IMPORTANT FOR OPTIMIZING THE SIZE OF THE IMAGE.
+# When compiling with this setting as a result I get a statically linked binary, 
+# which allows me to run this application using only a FROM scratch base image. 
 ENV CGO_ENABLED=0
 
 RUN --mount=type=secret,id=api_key \
-    export API_KEY=$(cat /run/secrets/api_key.txt) && \
-    # Компилируем приложение, флаги для максимальной оптимизации размера
+    export API_KEY=$(cat /run/secrets/api_key) && \
+    # Compile the application, flags for maximum size optimization
     go build -ldflags="-s -w -X main.apiKey=$API_KEY" -o weather-app .
 
 
-# Второй этап - создание минимального образа
+# Second stage - creating minimal image
 FROM scratch
 
-# Определяем аргумент сборки с значением по умолчанию
+# Define build argument with default value
 ARG PORT=3000
 
-# Устанавливаем переменную окружения из аргумента
+# Set environment variables for port and author
 ENV PORT=${PORT}
+ENV APP_AUTHOR="Vladyslav Liulka <vladlulka3@gmail.com>"
 
-# Копируем SSL-сертификаты из образа Go для HTTPS запросов
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# Set labels for the image metadata
+LABEL org.opencontainers.image.authors="${APP_AUTHOR}"
+LABEL org.opencontainers.image.title="Weather App"
+LABEL org.opencontainers.image.description="A minimalistic weather application"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.created="2025-04-22"
 
-# Копируем исполняемый файл из предыдущего этапа
+# Copy SSL certificates from Go image for HTTPS requests
+# This is needed to allow the application to run over https, but I unfortunately didn't have time to set this up properly
+# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# Copy executable file from previous stage
 COPY --from=builder /app/weather-app /weather-app
 
-# Устанавливаем рабочую директорию
+# Set working directory
 WORKDIR /
 
-# Открываем порт
+# Open port
 EXPOSE ${PORT}
 
-# Запускаем приложение
+# Ideally, we would need to create a HEALTHCHECK, but that would significantly increase the image size
+# The whole point is that GO allows using completely bare scratch for running, as it compiles to a binary
+# And to create a HEALTHCHECK, you need some curl or something similar that requires a package manager and file system
+
+# Run the application
 ENTRYPOINT ["/weather-app"]

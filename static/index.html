@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather App</title>
     <style>
-        /* Минимальные встроенные стили */
+        /* Minimal embedded styles */
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -65,56 +65,56 @@
         <h1>Weather App</h1>
         
         <div class="form-group">
-            <label for="countrySelect">Wybierz kraj:</label>
+            <label for="countrySelect">Select country:</label>
             <select id="countrySelect">
-                <option value="">-- Wybierz kraj --</option>
+                <option value="">-- Select country --</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label for="citySelect">Wybierz miasto:</label>
+            <label for="citySelect">Select city:</label>
             <select id="citySelect" disabled>
-                <option value="">-- Najpierw wybierz kraj --</option>
+                <option value="">-- Select country first --</option>
             </select>
         </div>
         
         <div class="form-group">
-            <button id="checkWeatherBtn" disabled>Sprawdź pogodę</button>
+            <button id="checkWeatherBtn" disabled>Check weather</button>
         </div>
         
         <div id="weatherContainer" class="weather-container">
-            <h2>Pogoda dla: <span id="locationName"></span></h2>
+            <h2>Weather for: <span id="locationName"></span></h2>
             <table>
                 <tr>
-                    <th>Parametr</th>
-                    <th>Wartość</th>
+                    <th>Parameter</th>
+                    <th>Value</th>
                 </tr>
                 <tr>
-                    <td>Stan pogody</td>
+                    <td>Weather condition</td>
                     <td id="condition"></td>
                 </tr>
                 <tr>
-                    <td>Temperatura</td>
+                    <td>Temperature</td>
                     <td id="temperature"></td>
                 </tr>
                 <tr>
-                    <td>Odczuwalna temperatura</td>
+                    <td>Feels like</td>
                     <td id="feelslike"></td>
                 </tr>
                 <tr>
-                    <td>Wilgotność</td>
+                    <td>Humidity</td>
                     <td id="humidity"></td>
                 </tr>
                 <tr>
-                    <td>Prędkość wiatru</td>
+                    <td>Wind speed</td>
                     <td id="windSpeed"></td>
                 </tr>
                 <tr>
-                    <td>Ciśnienie</td>
+                    <td>Pressure</td>
                     <td id="pressure"></td>
                 </tr>
                 <tr>
-                    <td>Ostatnia aktualizacja</td>
+                    <td>Last updated</td>
                     <td id="lastUpdated"></td>
                 </tr>
             </table>
@@ -131,11 +131,11 @@
             const weatherContainer = document.getElementById('weatherContainer');
             const errorContainer = document.getElementById('errorContainer');
             
-            // Загрузка списка стран
+            // Loading the list of countries
             try {
                 const countriesResponse = await fetch('/api/countries');
                 if (!countriesResponse.ok) {
-                    throw new Error('Nie udało się pobrać listy krajów');
+                    throw new Error('Failed to load the list of countries');
                 }
                 
                 const countries = await countriesResponse.json();
@@ -149,9 +149,9 @@
                 errorContainer.textContent = error.message;
             }
             
-            // Обработчик выбора страны
+            // Country selection handler
             countrySelect.addEventListener('change', async () => {
-                citySelect.innerHTML = '<option value="">-- Wybierz miasto --</option>';
+                citySelect.innerHTML = '<option value="">-- Select city --</option>';
                 citySelect.disabled = true;
                 checkWeatherBtn.disabled = true;
                 weatherContainer.style.display = 'none';
@@ -163,7 +163,7 @@
                 try {
                     const citiesResponse = await fetch(`/api/cities/${selectedCountry}`);
                     if (!citiesResponse.ok) {
-                        throw new Error('Nie udało się pobrać listy miast');
+                        throw new Error('Failed to load the list of cities');
                     }
                     
                     const cities = await citiesResponse.json();
@@ -180,14 +180,14 @@
                 }
             });
             
-            // Обработчик выбора города
+            // City selection handler
             citySelect.addEventListener('change', () => {
                 checkWeatherBtn.disabled = !citySelect.value;
                 weatherContainer.style.display = 'none';
                 errorContainer.textContent = '';
             });
             
-            // Обработчик нажатия кнопки проверки погоды
+            // Weather check button click handler
             checkWeatherBtn.addEventListener('click', async () => {
                 weatherContainer.style.display = 'none';
                 errorContainer.textContent = '';
@@ -196,19 +196,19 @@
                 const selectedCity = citySelect.value;
                 
                 if (!selectedCountry || !selectedCity) {
-                    errorContainer.textContent = 'Wybierz kraj i miasto';
+                    errorContainer.textContent = 'Select country and city';
                     return;
                 }
                 
                 try {
                     const weatherResponse = await fetch(`/api/weather?city=${encodeURIComponent(selectedCity)}&country=${encodeURIComponent(selectedCountry)}`);
                     if (!weatherResponse.ok) {
-                        throw new Error('Nie udało się pobrać danych pogodowych');
+                        throw new Error('Failed to fetch weather data');
                     }
                     
                     const weatherData = await weatherResponse.json();
                     
-                    // Заполнение данных о погоде
+                    // Filling weather data
                     document.getElementById('locationName').textContent = `${weatherData.city}, ${weatherData.country}`;
                     document.getElementById('condition').textContent = weatherData.condition;
                     document.getElementById('temperature').textContent = `${weatherData.temperature} °C`;
