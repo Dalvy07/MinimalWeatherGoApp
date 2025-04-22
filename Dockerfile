@@ -4,6 +4,11 @@ FROM golang:alpine AS builder
 
 WORKDIR /app
 
+# THIS VERY IMPORTANT FOR OPTIMIZING THE SIZE OF THE IMAGE.
+# When compiling with this setting as a result I get a statically linked binary, 
+# which allows me to run this application using only a FROM scratch base image.
+ENV CGO_ENABLED=0
+
 # Сopy source files from GitHub repo
 RUN apk add --no-cache git openssh-client
 
@@ -12,16 +17,12 @@ RUN mkdir -p /root/.ssh && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 RUN --mount=type=ssh,id=github \
-    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
+    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git . && \
+    git pull
 
 # # Copy files from local folder
 # COPY static/ ./static/
-# COPY main.go go.mod ./
-
-# THIS VERY IMPORTANT FOR OPTIMIZING THE SIZE OF THE IMAGE.
-# When compiling with this setting as a result I get a statically linked binary, 
-# which allows me to run this application using only a FROM scratch base image. 
-ENV CGO_ENABLED=0
+# COPY main.go go.mod ./ 
 
 RUN --mount=type=secret,id=api_key \
     export API_KEY=$(cat /run/secrets/api_key) && \
