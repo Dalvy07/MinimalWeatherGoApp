@@ -19,8 +19,8 @@ RUN mkdir -p /root/.ssh && \
 # Using --depth=1 and git pull becouse without it always use cache even if code was changed
 # And I don't want to use --no-cache.
 RUN --mount=type=ssh,id=github \
-    git clone --depth=1 git@github.com:Dalvy07/MinimalWeatherGoApp.git . && \
-    git pull
+    echo "Current time: $(date)" && \
+    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
 
 # # Copy files from local folder
 # COPY static/ ./static/
@@ -30,6 +30,7 @@ RUN --mount=type=secret,id=api_key \
     export API_KEY=$(cat /run/secrets/api_key) && \
     # Compile the application, flags for maximum size optimization
     go build -ldflags="-s -w -X main.apiKey=$API_KEY" -o weather-app .
+
 
 
 # Second stage - creating minimal image
