@@ -24,10 +24,15 @@ Repository for PAwCHO Zad1
   ```bash
   docker build --secret id=api_key,src=api_key.txt --build-arg PORT=8080 -t weather-app .
   ```
-- **Build using source code from github repo: (Must have only dockerfile, api_key.txt and configured ssh locally)**
+- **Build using source code from github repo: (Must have only dockerfile, api_key.txt and configured ssh locally). BUT ALWAYS USE CASHH EVEN IF CODE CHANGED**
   ```bash
   docker build --ssh github=~/.ssh/your_private_key --secret id=api_key,src=api_key.txt -t weather-app .
   ```
+- **Build using source code from github repo without cache**
+  ```bash
+  docker build --no-cache --ssh github=~/.ssh/gh_lab6 --secret id=api_key,src=api_key.txt -t weather-app .
+  ```
+
 
 ### Running the Container
 
