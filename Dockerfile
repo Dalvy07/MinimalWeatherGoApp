@@ -18,12 +18,9 @@ RUN mkdir -p /root/.ssh && \
 
 # Using echo "Current time: $(date) because without it always use cache even if code was changed
 # And I don't want to use --no-cache.
-# RUN --mount=type=ssh,id=github \
-#     echo "Current time: $(date)" && \
-#     git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
-
-RUN --mount=type=ssh \
-    --mount=type=git,url=git@github.com:Dalvy07/MinimalWeatherGoApp.git,branch=main,target=.
+RUN --mount=type=ssh,id=github \
+    echo "Current time: $(date)" && \
+    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
 
 # # Copy files from local folder
 # COPY static/ ./static/
