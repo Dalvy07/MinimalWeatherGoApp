@@ -4,7 +4,7 @@ Repo for PAwCHO Zad1
 ## Instructions
 ### Get API key
 - First of all you have to signup on [weather api](https://www.weatherapi.com/)
-- After loging you have to change API Response Fields in Dashboard. Just unmark all responses with units of freedom 🦅🦅🦅 (Faringeint, miles per hour, inches)
+- After loging you have to change API Response Fields in Dashboard. Just unmark all responses with units of freedom <a href="https://emojis.com/emoji/eagle-4w1ucyxsus5" target="_blank">Emoji by emojis.com</a> <a href="https://emojis.com/emoji/eagle-4w1ucyxsus5" target="_blank">Emoji by emojis.com</a> <a href="https://emojis.com/emoji/eagle-4w1ucyxsus5" target="_blank">Emoji by emojis.com</a> (Faringeint, miles per hour, inches)
 - You have to create a api_key.txt file and paste there your API key for 
 
 ## Commands
