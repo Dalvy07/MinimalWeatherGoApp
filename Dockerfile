@@ -16,6 +16,8 @@ RUN mkdir -p /root/.ssh && \
     chmod 700 /root/.ssh && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts
 
+# Using --depth=1 and git pull becouse without it always use cache even if code was changed
+# And I don't want to use --no-cache.
 RUN --mount=type=ssh,id=github \
     git clone --depth=1 git@github.com:Dalvy07/MinimalWeatherGoApp.git . && \
     git pull
