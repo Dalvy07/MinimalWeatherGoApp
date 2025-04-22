@@ -1,17 +1,33 @@
 # MinimalWeatherGoApp
-Repo for PAwCHO Zad1
 
-## Instructions
-### Get API key
-- First of all you have to signup on [weather api](https://www.weatherapi.com/)
-- After loging you have to change API Response Fields in Dashboard. Just unmark all responses with units of freedom <a href="https://emojis.com/emoji/eagle-4w1ucyxsus5" target="_blank">Emoji by emojis.com</a> <a href="https://emojis.com/emoji/eagle-4w1ucyxsus5" target="_blank">Emoji by emojis.com</a> <a href="https://emojis.com/emoji/eagle-4w1ucyxsus5" target="_blank">Emoji by emojis.com</a> (Faringeint, miles per hour, inches)
-- You have to create a api_key.txt file and paste there your API key for 
+Repository for PAwCHO Zad1
 
-## Commands
-### Build
-- Default build: docker build --secret id=api_key,src=api_key.txt -t weather-app .
-- Build with different port: docker build --secret id=api_key,src=api_key.txt --build-arg PORT=8080 -t weather-app .
+## Setup Instructions
 
+### Getting an API Key
 
-### Run
-- Run with port forwarding: docker run -p 3000:3000 weather-app
+1. Sign up on [Weather API](https://www.weatherapi.com/)
+2. After logging in, change API Response Fields in Dashboard:
+   - Unmark all responses with Imperial units (Fahrenheit, miles per hour, inches) 🦅
+3. Create an `api_key.txt` file in the project root folder and paste your API key
+
+## Docker Commands
+
+### Building the Container
+
+- **Default build:**
+  ```bash
+  docker build --secret id=api_key,src=api_key.txt -t weather-app .
+  ```
+
+- **Build with custom port:**
+  ```bash
+  docker build --secret id=api_key,src=api_key.txt --build-arg PORT=8080 -t weather-app .
+  ```
+
+### Running the Container
+
+- **Run with port forwarding:**
+  ```bash
+  docker run -p 3000:3000 weather-app
+  ```
