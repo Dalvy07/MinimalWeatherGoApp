@@ -2,7 +2,15 @@
 # First stage - application build
 FROM golang:alpine AS builder
 
+# Set working directory
 WORKDIR /app
+
+# Install openssh-client and git for SSH access to GitHub
+RUN apk add --no-cache git openssh-client
+
+RUN mkdir -p /root/.ssh && \
+    chmod 700 /root/.ssh && \
+    ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # THIS VERY IMPORTANT FOR OPTIMIZING THE SIZE OF THE IMAGE.
 # When compiling with this setting as a result I get a statically linked binary, 
@@ -10,16 +18,11 @@ WORKDIR /app
 ENV CGO_ENABLED=0
 
 # Сopy source files from GitHub repo
-RUN apk add --no-cache git openssh-client
-
-RUN mkdir -p /root/.ssh && \
-    chmod 700 /root/.ssh && \
-    ssh-keyscan github.com >> /root/.ssh/known_hosts
-
-# Using echo "Current time: $(date) because without it always use cache even if code was changed
+# Tryed using echo "Current time: $(date) because without it always use cache even if code was changed
 # And I don't want to use --no-cache.
+# But it still doesnt work
 RUN --mount=type=ssh,id=github \
-    echo "Current time: $(date)" && \
+    # echo "Current time: $(date)" && \
     git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
 
 # # Copy files from local folder
@@ -63,7 +66,7 @@ WORKDIR /
 # Open port
 EXPOSE ${PORT}
 
-# Ideally, we would need to create a HEALTHCHECK, but that would significantly increase the image size
+# Ideally, i would need to create a HEALTHCHECK, but that would significantly increase the image size
 # The whole point is that GO allows using completely bare scratch for running, as it compiles to a binary
 # And to create a HEALTHCHECK, you need some curl or something similar that requires a package manager and file system
 
