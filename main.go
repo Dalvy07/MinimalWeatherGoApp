@@ -56,7 +56,7 @@ var locations = map[string][]string{
 	"Germany":       {"Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"},
 	"France":        {"Paris", "Marseille", "Lyon", "Toulouse", "Nice"},
 	"Great Britain": {"London", "Manchester", "Liverpool", "Birmingham", "Glasgow"},
-	"Italy":         {"Rome", "Naples", "Florence", "Venice"},
+	"Italy":         {"Rome", "Milan",  "Naples", "Florence", "Venice"},
 }
 
 // API key is obtained from environment variable

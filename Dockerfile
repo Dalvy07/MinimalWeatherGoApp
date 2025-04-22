@@ -17,7 +17,7 @@ RUN mkdir -p /root/.ssh && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 RUN --mount=type=ssh,id=github \
-    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git . && \
+    git clone --depth=1 git@github.com:Dalvy07/MinimalWeatherGoApp.git . && \
     git pull
 
 # # Copy files from local folder
