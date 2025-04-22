@@ -25,5 +25,3 @@ go.work.sum
 .env
 
 api_key.txt
-
-Dockerfile

@@ -62,7 +62,7 @@ var locations = map[string][]string{
 // API key is obtained from environment variable
 var apiKey string
 // Author information from environment or default value if not set
-var authorName := os.Getenv("APP_AUTHOR")
+var authorName = os.Getenv("APP_AUTHOR")
 
 func init() {
     // Check that apiKey was set during compilation
