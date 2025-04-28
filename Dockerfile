@@ -17,7 +17,9 @@ RUN mkdir -p /root/.ssh && \
 # which allows me to run this application using only a FROM scratch base image.
 ENV CGO_ENABLED=0
 
-ARG CACHEBUST=unknown
+# Variable for cache busting
+# This is needed to force Docker to rebuild the image when the code changes
+ARG CACHE_BUST=unknown
 ARG BRANCH=main
 
 # Сopy source files from GitHub repo
