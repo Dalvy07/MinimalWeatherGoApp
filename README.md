@@ -41,7 +41,7 @@ Repository for PAwCHO Zad1
   docker tag weather-app your_username/weather-app:latest
   ```
   ```bash
-  docker push weather-app your_username/weather-app:latest
+  docker push your_username/weather-app:latest
   ```
 
 
