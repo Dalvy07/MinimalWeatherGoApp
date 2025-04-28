@@ -36,6 +36,14 @@ Repository for PAwCHO Zad1
   docker build --build-arg CACHE_BUST=$(date +%s) --ssh github=~/.ssh/gh_lab6 --secret id=api_key,src=api_key.txt -t weather-app .
   ```
 
+- **You can send your image to dockerhub using:**
+  ```bash
+  docker tag weather-app your_username/weather-app:latest
+  ```
+  ```bash
+  docker push weather-app your_username/weather-app:latest
+  ```
+
 
 ### Running the Container
 
@@ -53,3 +61,4 @@ Repository for PAwCHO Zad1
   ```bash
   docker history weather-app
   ```
+- **Unfortunately, you can only view the logs using docker desktop or the terminal in which the coneytner was started. Since I tried to make the container as small as possible, the base image has nothing but scratch, which makes it impossible to connect to the container terminal to view logs, because there is no terminal there.**

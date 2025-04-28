@@ -27,7 +27,7 @@ ARG BRANCH=main
 # And I don't want to use --no-cache.
 # But it still doesnt work
 RUN --mount=type=ssh,id=github \
-    echo "Cache bust: ${CACHEBUST}" && \
+    echo "Cache bust: ${CACHE_BUST}" && \
     git clone --depth=1 --branch=${BRANCH} git@github.com:Dalvy07/MinimalWeatherGoApp.git .
 
 # # Copy files from local folder
