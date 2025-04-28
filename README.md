@@ -96,7 +96,7 @@ Repository for PAwCHO Zad1
 
 - **Simple run with:**
   ```bash
-  docker run -p 3000:3000 weather-app
+  docker run -p 3000:3000 docker.io/dalvy07/weather-app
   ```
 
 ### Analyzing Image
