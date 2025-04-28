@@ -57,7 +57,7 @@ Repository for PAwCHO Zad1
   ```bash
   docker scout cves docker.io/dalvy07/weather-app:latest
   ```
-
+![image-alt](https://github.com/Dalvy07/MinimalWeatherGoApp/blob/main/screenshots/vulnerabilities_check.png?raw=true)
 ### Building Multiplatform OCI Image Using Cache Type Registry
 
 - **Building OCI image for 2 platforms using cache type registry**
@@ -75,17 +75,22 @@ Repository for PAwCHO Zad1
   --output type=image,name=docker.io/dalvy07/weather-app:latest,push=true,oci-mediatypes=true \
   .
   ```
+*First iteration of building using registry cache*
+![image-alt](https://github.com/Dalvy07/MinimalWeatherGoApp/blob/main/screenshots/first_iteration_using_registry_cache.png?raw=true)
 
+*Second iteration of building using registry cache*
+![image-alt](https://github.com/Dalvy07/MinimalWeatherGoApp/blob/main/screenshots/second_iteration_using_registry_cache.png?raw=true)
 - **To check manifest**
   ```bash
   docker manifest inspect docker.io/dalvy07/weather-app:latest
   ```
 
-- **To check usage of OCI media-types**
+- **To check usage of OCI media-typesand multiplatforming **
   ```bash
   docker buildx imagetools inspect docker.io/dalvy07/weather-app:latest
   ```
-
+*Check usage of OCI media-types and multiplatforming*
+![image-alt](https://github.com/Dalvy07/MinimalWeatherGoApp/blob/main/screenshots/check_manifest_for_OCI_and_multiplatform.png?raw=true)
 ### Sending Image to DockerHub
 
 - **You can send your image to DockerHub using:**
