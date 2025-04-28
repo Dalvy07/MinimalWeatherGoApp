@@ -8,27 +8,14 @@ Repository for PAwCHO Zad1
 
 1. Sign up on [Weather API](https://www.weatherapi.com/)
 2. After logging in, change API Response Fields in Dashboard:
-   - Unmark all responses with Imperial units (Fahrenheit, miles per hour, inches) 🦅
+   - Unmark all responses with Imperial units 🦅🦅🦅 (Fahrenheit, miles per hour, inches)
 3. Create an `api_key.txt` file in the project root folder and paste your API key
 
 ## Docker Commands
 
-### Building the Container
+### Base Building of Container
 
-- **Default build:**
-  ```bash
-  docker build --secret id=api_key,src=api_key.txt -t weather-app .
-  ```
-
-- **Build from local files (Must comment part that fetch from github and uncomment local copy. And must have source files locally):**
-  ```bash
-  docker build --secret id=api_key,src=api_key.txt --build-arg PORT=8080 -t weather-app .
-  ```
-- **Build using source code from github repo: (Must have only dockerfile, api_key.txt and configured ssh locally). BUT ALWAYS USE CASHH EVEN IF CODE CHANGED**
-  ```bash
-  docker build --ssh github=~/.ssh/your_private_key --secret id=api_key,src=api_key.txt -t weather-app .
-  ```
-- **Build using source code from github repo without cache**
+- **Build using source code from GitHub repo**
   ```bash
   docker build --no-cache --ssh github=~/.ssh/gh_lab6 --secret id=api_key,src=api_key.txt -t weather-app .
   ```
@@ -36,14 +23,74 @@ Repository for PAwCHO Zad1
   docker build --build-arg CACHE_BUST=$(date +%s) --ssh github=~/.ssh/gh_lab6 --secret id=api_key,src=api_key.txt -t weather-app .
   ```
 
-- **You can send your image to dockerhub using:**
+### Building Container with SBOM and Provenance for Checking Vulnerabilities
+
+- **Build with SBOM and provenance**
   ```bash
-  docker tag weather-app your_username/weather-app:latest
-  ```
-  ```bash
-  docker push your_username/weather-app:latest
+  docker buildx build \
+  --platform linux/amd64 \
+  --build-arg CACHE_BUST=$(date +%s) \
+  --ssh github=~/.ssh/gh_lab6 \
+  --secret id=api_key,src=api_key.txt \
+  --tag docker.io/dalvy07/weather-app:latest \
+  --sbom=true \
+  --provenance=mode=max \
+  --push \
+  .
   ```
 
+- **To see SBOM:**
+  ```bash
+  docker buildx imagetools inspect docker.io/dalvy07/weather-app:latest --format '{{json .SBOM}}'
+  ```
+
+- **To see Provenance:**
+  ```bash
+  docker buildx imagetools inspect docker.io/dalvy07/weather-app:latest --format '{{json .Provenance}}'
+  ```
+
+- **Checking image for vulnerabilities**
+  ```bash
+  docker scout cves docker.io/dalvy07/weather-app:latest
+  ```
+
+### Building Multiplatform OCI Image Using Cache Type Registry
+
+- **Building OCI image for 2 platforms using cache type registry**
+  ```bash
+  docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --build-arg CACHE_BUST=$(date +%s) \
+  --ssh github=~/.ssh/gh_lab6 \
+  --secret id=api_key,src=api_key.txt \
+  --tag docker.io/dalvy07/weather-app:latest \
+  --sbom=true \
+  --provenance=mode=max \
+  --cache-to type=registry,ref=docker.io/dalvy07/weather-app-cache:latest,mode=max \
+  --cache-from type=registry,ref=docker.io/dalvy07/weather-app-cache:latest \
+  --output type=image,name=docker.io/dalvy07/weather-app:latest,push=true,oci-mediatypes=true \
+  .
+  ```
+
+- **To check manifest**
+  ```bash
+  docker manifest inspect docker.io/dalvy07/weather-app:latest
+  ```
+
+- **To check usage of OCI media-types**
+  ```bash
+  docker buildx imagetools inspect docker.io/dalvy07/weather-app:latest
+  ```
+
+### Sending Image to DockerHub
+
+- **You can send your image to DockerHub using:**
+  ```bash
+  docker tag weather-app docker.io/dalvy07/weather-app:latest
+  ```
+  ```bash
+  docker push docker.io/dalvy07/weather-app:latest
+  ```
 
 ### Running the Container
 
@@ -52,13 +99,41 @@ Repository for PAwCHO Zad1
   docker run -p 3000:3000 weather-app
   ```
 
-### Analize image
-- **Basic information about image (can check layers, env, itp):**
+### Analyzing Image
+
+- **Basic information about image (can check layers, env, etc.):**
   ```bash
-  docker inspect weather-app
+  docker inspect docker.io/dalvy07/weather-app
   ```
+
 - **Build history:**
   ```bash
-  docker history weather-app
+  docker history docker.io/dalvy07/weather-app
   ```
-- **Unfortunately, you can only view the logs using docker desktop or the terminal in which the coneytner was started. Since I tried to make the container as small as possible, the base image has nothing but scratch, which makes it impossible to connect to the container terminal to view logs, because there is no terminal there.**
+
+- **To check manifest**
+  ```bash
+  docker manifest inspect docker.io/dalvy07/weather-app:latest
+  ```
+
+- **To check usage of OCI media-types**
+  ```bash
+  docker buildx imagetools inspect docker.io/dalvy07/weather-app:latest
+  ```
+
+- **To see SBOM:**
+  ```bash
+  docker buildx imagetools inspect docker.io/dalvy07/weather-app:latest --format '{{json .SBOM}}'
+  ```
+
+- **To see Provenance:**
+  ```bash
+  docker buildx imagetools inspect docker.io/dalvy07/weather-app:latest --format '{{json .Provenance}}'
+  ```
+
+- **Checking image for vulnerabilities**
+  ```bash
+  docker scout cves docker.io/dalvy07/weather-app:latest
+  ```
+
+> **Note:** Unfortunately, you can only view the logs using Docker Desktop or the terminal in which the container was started. Since I tried to make the container as small as possible, the base image has nothing but scratch, which makes it impossible to connect to the container terminal to view logs, because there is no terminal there.

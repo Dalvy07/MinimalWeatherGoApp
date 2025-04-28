@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.4-labs
+# syntax=docker/dockerfile:1.2
 # First stage - application build
 FROM golang:alpine AS builder
 
