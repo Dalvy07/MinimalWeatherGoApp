@@ -32,6 +32,9 @@ Repository for PAwCHO Zad1
   ```bash
   docker build --no-cache --ssh github=~/.ssh/gh_lab6 --secret id=api_key,src=api_key.txt -t weather-app .
   ```
+  ```bash
+  docker build --build-arg CACHE_BUST=$(date +%s) --ssh github=~/.ssh/gh_lab6 --secret id=api_key,src=api_key.txt -t weather-app .
+  ```
 
 
 ### Running the Container

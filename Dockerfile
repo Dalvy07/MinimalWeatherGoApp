@@ -17,13 +17,16 @@ RUN mkdir -p /root/.ssh && \
 # which allows me to run this application using only a FROM scratch base image.
 ENV CGO_ENABLED=0
 
+ARG CACHEBUST=unknown
+ARG BRANCH=main
+
 # Сopy source files from GitHub repo
 # Tryed using echo "Current time: $(date) because without it always use cache even if code was changed
 # And I don't want to use --no-cache.
 # But it still doesnt work
 RUN --mount=type=ssh,id=github \
-    # echo "Current time: $(date)" && \
-    git clone git@github.com:Dalvy07/MinimalWeatherGoApp.git .
+    echo "Cache bust: ${CACHEBUST}" && \
+    git clone --depth=1 --branch=${BRANCH} git@github.com:Dalvy07/MinimalWeatherGoApp.git .
 
 # # Copy files from local folder
 # COPY static/ ./static/
